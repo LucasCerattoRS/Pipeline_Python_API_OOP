@@ -50,5 +50,18 @@ class Restaurante:
 
     def adicionar_no_cardapio(self, item):
         if isinstance(item, ItemCardapio):
+            # o polimorfismo funcionando na prática!
             ## O método isinstance() é uma função embutida em Python que verifica se um objeto é uma instância de uma classe específica ou de uma tupla de classes. Ele retorna True se o objeto for uma instância da classe ou de qualquer classe na tupla, e False caso contrário.
             self._cardapio.append(item)
+
+    @property
+    ## propery - > é um decorador em Python que permite definir métodos em uma classe que podem ser acessados como atributos. Ele é usado para criar propriedades, que são métodos que podem ser acessados como se fossem atributos, sem a necessidade de chamar o método explicitamente.
+    def exibir_cardapio(self):
+        print(f'Cardápio do Restaurante: {self._nome}\n')
+        for i,item in enumerate(self._cardapio, start=1):
+            if hasattr(item, 'descricao'):
+                mensagem_prato = f'{i}. Nome:{item._nome} | Preço: R${item._preco:.2f} | Descrição: {item.descricao}'
+                print(mensagem_prato)
+            else:
+                mensagem_bebida = f'{i}. Nome:{item._nome} | Preço: R${item._preco:.2f} | Tamanho: {item.tamanho}'
+                print(mensagem_bebida)

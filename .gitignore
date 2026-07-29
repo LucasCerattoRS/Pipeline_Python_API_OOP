@@ -1,0 +1,29 @@
+# Ambientes virtuais — nunca versionar. São recriáveis a partir do requirements.txt
+# e carregam binários da máquina em que foram feitos (não funcionam na outra).
+venv/
+.venv/
+env/
+ENV/
+
+# Bytecode e cache do Python
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Segredos e configuração local
+.env
+.env.*
+!.env.exemplo
+
+# Ferramentas
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+*.egg-info/
+dist/
+build/
+
+# Editor / sistema
+.vscode/
+.idea/
+.DS_Store

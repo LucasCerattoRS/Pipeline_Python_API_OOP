@@ -41,12 +41,9 @@ class Restaurante:
         media = round(soma_das_notas / quantidade_de_notas, 1)
         return media
     
-    ## def adicionar_bebida_cardapio(self, bebida):
-        self._cardapio.append(bebida)
-        
-    
-    ## def adicionar_prato_cardapio(self, prato):
-        self._cardapio.append(prato)
+    # Versões antigas, substituídas por adicionar_no_cardapio (aceita qualquer ItemCardapio):
+    # def adicionar_bebida_cardapio(self, bebida): self._cardapio.append(bebida)
+    # def adicionar_prato_cardapio(self, prato): self._cardapio.append(prato)
 
     def adicionar_no_cardapio(self, item):
         if isinstance(item, ItemCardapio):
@@ -54,8 +51,9 @@ class Restaurante:
             ## O método isinstance() é uma função embutida em Python que verifica se um objeto é uma instância de uma classe específica ou de uma tupla de classes. Ele retorna True se o objeto for uma instância da classe ou de qualquer classe na tupla, e False caso contrário.
             self._cardapio.append(item)
 
-    @property
-    ## propery - > é um decorador em Python que permite definir métodos em uma classe que podem ser acessados como atributos. Ele é usado para criar propriedades, que são métodos que podem ser acessados como se fossem atributos, sem a necessidade de chamar o método explicitamente.
+    # Sem @property aqui: exibir_cardapio é uma AÇÃO (imprime) e o app.py a chama com ().
+    # Com @property, `restaurante.exibir_cardapio()` virava None() -> TypeError.
+    ## property -> é um decorador em Python que permite definir métodos em uma classe que podem ser acessados como atributos. Ele é usado para criar propriedades, que são métodos que podem ser acessados como se fossem atributos, sem a necessidade de chamar o método explicitamente.
     def exibir_cardapio(self):
         print(f'Cardápio do Restaurante: {self._nome}\n')
         for i,item in enumerate(self._cardapio, start=1):

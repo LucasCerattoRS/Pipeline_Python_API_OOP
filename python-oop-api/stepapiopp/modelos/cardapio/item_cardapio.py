@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod
-class ItemCardapio():
+class ItemCardapio(ABC):
+    # Herdar de ABC é o que faz o @abstractmethod valer: sem isso, ItemCardapio podia ser instanciada.
     ## init é um método especial em Python que é chamado quando um objeto é criado a partir de uma classe. Ele é usado para inicializar os atributos do objeto.
     def __init__(self, nome: str, preco: float):
         ## Atributos privados

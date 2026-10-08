@@ -48,15 +48,17 @@ aquecimento pra Etapa 3.
 3. `modelos/restaurante.py` — usa `ItemCardapio` sem saber se é Prato ou Bebida.
 4. `app.py` — o script que monta um restaurante e exibe o cardápio.
 
-**Bug pra você achar (é exercício):**
-- `item_cardapio.py` faz `class ItemCardapio():` — **sem herdar de `ABC`**. Com
-  isso o `@abstractmethod` não é realmente forçado: dá pra instanciar
-  `ItemCardapio()` direto, o que não devia. Conserte: `from abc import ABC,
-  abstractmethod` e `class ItemCardapio(ABC):`. Teste que `ItemCardapio("x", 1)`
-  passa a levantar `TypeError`.
-- `app.py`, no `main()`: `restaurante_praca.exibir_cardapio` — falta o `()`, então
-  não chama nada. (Já corrigido em 10/09, mas repare que estava lá — é o tipo de
-  erro que só aparece quando você **roda** e não vê saída nenhuma.)
+**Bugs que existiam (corrigidos em 08/10/2026 — estude o diff com `git log -p`):**
+- `item_cardapio.py` fazia `class ItemCardapio():` — **sem herdar de `ABC`**. Com
+  isso o `@abstractmethod` não era forçado: dava pra instanciar `ItemCardapio()`
+  direto. Agora é `class ItemCardapio(ABC):` e `ItemCardapio("x", 1)` levanta
+  `TypeError` (teste em `test_modelos.py`). Exercício: comente o `(ABC)` e veja o
+  teste falhar.
+- `app.py` chamava `restaurante_praca.exibir_cardapio` sem `()`. Em 10/09 o `()`
+  foi adicionado, mas `exibir_cardapio` estava decorado com `@property` — então a
+  propriedade rodava, devolvia `None` e o `()` virava `None()` → `TypeError`.
+  Lição: `@property` é pra algo que se **lê** como atributo; ação que imprime é
+  método comum. O decorador foi removido.
 
 **Exercício final:** adicione uma terceira subclasse `Sobremesa` que herda de
 `ItemCardapio`, com sua própria regra de desconto, e coloque uma no cardápio.

@@ -70,6 +70,11 @@ Python 3.12 · `csv` · `json` · `pathlib` · `abc` · `unittest`. Nenhuma depe
   `get_columns` agora une as colunas de todas as linhas (a ordem do `join` não
   importa mais) e `leitura_dados` não engole erros: arquivo ausente levanta
   `FileNotFoundError` e tipo desconhecido, `ValueError`.
+- Auditoria de 16/10: `Dados` agora rejeita (`ValueError`) JSON/lista que não seja lista de
+  objetos (antes `[1, 2]` dava `TypeError` obscuro e `{"a": 1}` passava com colunas lixo);
+  JSON quebrado/vazio já levantava `JSONDecodeError` (teste adicionado). Testes: 8 + 3 verdes.
+- Suposição não reproduzível: timeout e 429 de API externa — não há código HTTP no repo
+  (`requests` só consta em requirements.txt, sem uso). Nada a corrigir.
 - Observação: o repositório não chama APIs externas, então não há paginação nem
   HTTP para tratar; os testes não usam rede.
 

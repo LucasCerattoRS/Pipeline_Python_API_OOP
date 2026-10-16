@@ -38,6 +38,9 @@ class Dados:
             dados = self.caminho
             self.caminho = "Lista em Memória"
 
+        # JSON/lista fora do formato esperado quebrava depois, com erro obscuro (ou passava com colunas lixo)
+        if not isinstance(dados, list) or not all(isinstance(l, dict) for l in dados):
+            raise ValueError("os dados devem ser uma lista de objetos (dict)")
         return dados
 
     def get_columns(self):

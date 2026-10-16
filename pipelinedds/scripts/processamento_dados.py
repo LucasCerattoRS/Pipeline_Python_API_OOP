@@ -19,32 +19,33 @@ class Dados:
 
     def leitura_dados(self):
         dados = []
-        try:
-            if self.tipo_dados == 'csv':
-                with open(self.caminho, 'r', encoding='utf-8') as ficheiro:
-                    leitor = csv.DictReader(ficheiro, delimiter=',')
-                    for linha in leitor:
-                        dados.append(linha)
+        if self.tipo_dados not in ('csv', 'json', 'list'):
+            raise ValueError(f"tipo_dados inválido: {self.tipo_dados!r}")
+        # Sem try/except: arquivo ausente ou JSON quebrado deve parar o pipeline,
+        # em vez de seguir com lista vazia e gravar um CSV vazio como se fosse sucesso.
+        if self.tipo_dados == 'csv':
+            with open(self.caminho, 'r', encoding='utf-8') as ficheiro:
+                leitor = csv.DictReader(ficheiro, delimiter=',')
+                for linha in leitor:
+                    dados.append(linha)
             
-            elif self.tipo_dados == 'json':
-                with open(self.caminho, 'r', encoding='utf-8') as ficheiro:
-                    dados = json.load(ficheiro)
+        elif self.tipo_dados == 'json':
+            with open(self.caminho, 'r', encoding='utf-8') as ficheiro:
+                dados = json.load(ficheiro)
             
-            elif self.tipo_dados == 'list':
-                # Caso especial para quando já temos uma lista na memória
-                dados = self.caminho
-                self.caminho = "Lista em Memória"
-                
-        except Exception as e:
-            print(f"Erro ao ler ficheiro: {e}")
-            
+        elif self.tipo_dados == 'list':
+            # Caso especial para quando já temos uma lista na memória
+            dados = self.caminho
+            self.caminho = "Lista em Memória"
+
         return dados
 
     def get_columns(self):
-        # Pega na primeira linha para saber os nomes das colunas
-        if not self.dados:
-            return []
-        return list(self.dados[0].keys())
+        # União das colunas de todas as linhas, na ordem em que aparecem
+        colunas = {}
+        for linha in self.dados:
+            colunas.update(dict.fromkeys(linha))
+        return list(colunas)
 
     def size_data(self):
         return len(self.dados)
@@ -86,7 +87,7 @@ class Dados:
         colunas = self.get_columns()
         
         with open(caminho_saida, 'w', newline='', encoding='utf-8') as ficheiro:
-            writer = csv.DictWriter(ficheiro, fieldnames=colunas)
+            writer = csv.DictWriter(ficheiro, fieldnames=colunas, restval='')
             writer.writeheader()
             writer.writerows(self.dados)
         

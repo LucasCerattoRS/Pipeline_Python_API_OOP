@@ -66,10 +66,12 @@ Python 3.12 · `csv` · `json` · `pathlib` · `abc` · `unittest`. Nenhuma depe
   nenhum código usa: dá para ignorar (ou apagar) esse arquivo.
 - `receber_avaliacao` aceita só nota de 1 a 5 e **ignora em silêncio** o resto: em
   `poo-api/app.py` as notas 10 e 8 são descartadas e a média sai 2.0.
-- `Dados.get_columns` olha só a primeira linha; o pipeline funciona porque a empresa
-  B (que tem "Data da Venda") vem primeiro no `join`. Na ordem inversa, o
-  `DictWriter` quebraria.
-- `leitura_dados` engole erros de leitura (imprime e segue com lista vazia).
+- Corrigidos em 09/10 (com testes em `pipelinedds/tests/test_dados.py`):
+  `get_columns` agora une as colunas de todas as linhas (a ordem do `join` não
+  importa mais) e `leitura_dados` não engole erros: arquivo ausente levanta
+  `FileNotFoundError` e tipo desconhecido, `ValueError`.
+- Observação: o repositório não chama APIs externas, então não há paginação nem
+  HTTP para tratar; os testes não usam rede.
 
 ## Para estudar
 
@@ -81,5 +83,23 @@ Python 3.12 · `csv` · `json` · `pathlib` · `abc` · `unittest`. Nenhuma depe
    `ABC` + `@abstractmethod` obrigam cada filha a implementar `aplicar_desconto`.
 4. **Polimorfismo com `isinstance`** — `python-oop-api/stepapiopp/modelos/restaurante.py:48-53`:
    o restaurante aceita qualquer `ItemCardapio` sem saber se é prato ou bebida.
+
+5. **Pipeline = extract → transform → load** —
+   `pipelinedds/scripts/fusao_mercado_fev.py:26-48`: ler as fontes, padronizar
+   colunas, juntar e gravar. Falhar alto na leitura (`processamento_dados.py:20-41`)
+   evita gravar uma saída vazia achando que deu certo.
+6. **Imutabilidade do `join`** — `processamento_dados.py:73-80`: devolve um novo
+   objeto `Dados` em vez de alterar os originais.
+
+### Exercícios
+
+1. Faça `Dados` aceitar `tipo_dados == 'tsv'` e escreva um teste em `pipelinedds/tests`.
+2. Em `rename_columns`, detecte duas colunas antigas mapeadas para o mesmo nome
+   novo (hoje uma sobrescreve a outra) e levante `ValueError`.
+3. Crie a subclasse `Sobremesa(ItemCardapio)` com desconto próprio e teste que
+   `ItemCardapio` continua não instanciável.
+
+Testes: `python -m unittest discover -s pipelinedds/tests -v` (raiz) e
+`python -m unittest -v` (em `python-oop-api/stepapiopp`). CI em `.github/workflows/ci.yml`.
 
 Mais em [`docs/estudo/ROTEIRO.md`](docs/estudo/ROTEIRO.md).

@@ -62,8 +62,11 @@ Python 3.12 · `csv` · `json` · `pathlib` · `abc` · `unittest`. Nenhuma depe
 
 ## Pendências
 
-- `python-oop-api/stepapiopp/requirements.txt` lista FastAPI, requests etc., mas
-  nenhum código usa: dá para ignorar (ou apagar) esse arquivo.
+- Em 18/11: apagado o `python-oop-api/stepapiopp/requirements.txt` (listava FastAPI,
+  requests etc., que nenhum código usa). O pipeline passou a gravar o CSV com LF, igual
+  ao que o `.gitattributes` guarda (antes rodar o pipeline deixava `dados_combinados.csv`
+  sempre "modificado"); teste novo roda o pipeline inteiro e confere que a saída bate
+  byte a byte com a versionada. A CI agora também roda os dois `app.py`.
 - `receber_avaliacao` aceita só nota de 1 a 5 e **ignora em silêncio** o resto: em
   `poo-api/app.py` as notas 10 e 8 são descartadas e a média sai 2.0.
 - Corrigidos em 09/10 (com testes em `pipelinedds/tests/test_dados.py`):
@@ -74,7 +77,7 @@ Python 3.12 · `csv` · `json` · `pathlib` · `abc` · `unittest`. Nenhuma depe
   objetos (antes `[1, 2]` dava `TypeError` obscuro e `{"a": 1}` passava com colunas lixo);
   JSON quebrado/vazio já levantava `JSONDecodeError` (teste adicionado). Testes: 8 + 3 verdes.
 - Suposição não reproduzível: timeout e 429 de API externa — não há código HTTP no repo
-  (`requests` só consta em requirements.txt, sem uso). Nada a corrigir.
+  (`requests` só constava no requirements.txt apagado em 18/11, sem uso). Nada a corrigir.
 - Observação: o repositório não chama APIs externas, então não há paginação nem
   HTTP para tratar; os testes não usam rede.
 

@@ -2,7 +2,9 @@
 
 Rodar na raiz: python -m unittest discover -s pipelinedds/tests -v
 """
+import contextlib
 import csv
+import io
 import sys
 import tempfile
 import unittest
@@ -10,6 +12,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "scripts"))
 from processamento_dados import Dados  # noqa: E402
+import fusao_mercado_fev  # noqa: E402
 
 
 class TestDados(unittest.TestCase):
@@ -31,7 +34,8 @@ class TestDados(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp:
             saida = Path(tmp) / "x" / "out.csv"
             d.salvando_dados(saida)
-            linhas = list(csv.DictReader(open(saida, encoding="utf-8")))
+            with open(saida, encoding="utf-8", newline="") as f:
+                linhas = list(csv.DictReader(f))
         self.assertEqual(linhas, [{"a": "1", "b": ""}, {"a": "2", "b": "3"}])
 
     def test_join_independe_da_ordem(self):
@@ -63,6 +67,38 @@ class TestDados(unittest.TestCase):
     def test_lista_em_memoria_invalida_levanta_erro(self):
         with self.assertRaisesRegex(ValueError, "lista de objetos"):
             Dados([1, 2], "list")
+
+
+class TestPipeline(unittest.TestCase):
+    """Roda o pipeline de verdade (dados de data_raw), gravando numa pasta temporária."""
+
+    def _rodar_pipeline(self):
+        tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(tmp.cleanup)
+        original = fusao_mercado_fev.PATH_PROCESSED
+        fusao_mercado_fev.PATH_PROCESSED = Path(tmp.name)
+        self.addCleanup(setattr, fusao_mercado_fev, "PATH_PROCESSED", original)
+        with contextlib.redirect_stdout(io.StringIO()):
+            fusao_mercado_fev.pipeline_principal()
+        return Path(tmp.name) / "dados_combinados.csv"
+
+    def test_saida_tem_4446_linhas_e_colunas_padronizadas(self):
+        with open(self._rodar_pipeline(), encoding="utf-8", newline="") as f:
+            leitor = csv.DictReader(f)
+            linhas = list(leitor)
+        self.assertEqual(len(linhas), 3123 + 1323)
+        self.assertEqual(leitor.fieldnames, [
+            "Nome do Produto", "Categoria do Produto", "Preço do Produto (R$)",
+            "Quantidade em Estoque", "Filial", "Data da Venda",
+        ])
+
+    def test_saida_igual_a_versionada_e_com_lf(self):
+        # O CSV em data_processed/ é versionado "para consulta": precisa bater byte a byte
+        # com o que o pipeline gera. Antes, o csv gravava CRLF e o arquivo sempre aparecia modificado.
+        gerado = self._rodar_pipeline().read_bytes()
+        versionado = (fusao_mercado_fev.DIR_PROJECT / "data_processed" / "dados_combinados.csv").read_bytes()
+        self.assertNotIn(b"\r", gerado)
+        self.assertEqual(gerado, versionado)
 
 
 if __name__ == "__main__":

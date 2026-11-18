@@ -90,7 +90,9 @@ class Dados:
         colunas = self.get_columns()
         
         with open(caminho_saida, 'w', newline='', encoding='utf-8') as ficheiro:
-            writer = csv.DictWriter(ficheiro, fieldnames=colunas, restval='')
+            # lineterminator='\n': o padrão do csv é '\r\n', mas o repositório guarda os CSV com LF
+            # (.gitattributes eol=lf); com CRLF, cada execução deixava o CSV versionado como "modificado".
+            writer = csv.DictWriter(ficheiro, fieldnames=colunas, restval='', lineterminator='\n')
             writer.writeheader()
             writer.writerows(self.dados)
         

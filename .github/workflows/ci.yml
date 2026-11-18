@@ -11,3 +11,8 @@ jobs:
       - run: python -m unittest discover -s pipelinedds/tests -v
       - run: python -m unittest -v
         working-directory: python-oop-api/stepapiopp
+      # Smoke: os dois apps de POO precisam rodar sem erro (o pipeline já roda no teste acima).
+      - run: python app.py
+        working-directory: poo-api
+      - run: python app.py
+        working-directory: python-oop-api/stepapiopp
